@@ -38,9 +38,8 @@
                 $inputUsername = $_POST['username'];
                 $inputPassword = $_POST['password'];
 
-                // SQL query that pulls rows from table
                 $stmt = $conn->prepare("SELECT * FROM admin WHERE username = ? LIMIT 1");
-                $stmt->bind_param("s", $inputUsername); // "s" indicates the type is string
+                $stmt->bind_param("s", $inputUsername); 
                 $stmt->execute();
 
                 $result = $stmt->get_result();
