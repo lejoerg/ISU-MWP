@@ -23,19 +23,41 @@
 .text-container {
 	width: 100%; /* Width of the text container */
 }
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, rgba(0, 0, 0, .9), transparent); /* Left to right fading shade */
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-end;
+}
 .gallery-container {
     max-width: 1000px; /* Adjust width as needed */
     margin: 0 auto; /* Center the container */
+    padding: 20px; /* Space inside the container */
     position: relative; /* Enable absolute positioning for buttons */
+    background: #000 url('https://cdn.illinoisstate.edu/special/patterns/diagonal-grey.jpg') repeat 0 0;
+    border: 2px solid #ddd; /* Border around the container */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5); /* Drop shadow */
 }
 
+/* Gallery Styles */
 .gallery {
     overflow: hidden; /* Hide overflow to only show one image */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
 }
 
+/* Individual Gallery Item */
 .gallery-item {
     display: none; /* Hide all gallery items by default */
-    justify-content: center; /* Center the image */
+    justify-content: center;
 }
 
 .gallery-item.active {
@@ -43,8 +65,10 @@
 }
 
 .gallery-item img {
-    width: 100%; /* Make the image take the full width */
+    width: 100%; /* Image takes the full width */
     height: auto; /* Maintain aspect ratio */
+    border-radius: 5px; /* Optional rounded corners for images */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5); /* Shadow around images */
 }
 
 button,
@@ -85,9 +109,11 @@ button:hover,
     <main>
 	<div class="image-container">
   <img src="../img/pool-cropped.jpg" alt="Background Image" class="background-image">
-  <div class="overlay">
-    <h1 style="color: white; text-align: left; padding: 0px 0px 30px 30px; font-size: 3.5em;">Welcome to the Team!</h1>
-  </div>
+	<div class="overlay">
+		<h1 style="color: white; text-align: left; padding: 0px 0px 40px 30px; font-size: 3.5em;">Welcome to the Team!</h1>
+	</div>
+
+
 	</div>
 	
         <div class="container">
@@ -163,7 +189,7 @@ button:hover,
 			<p>We practice on <strong>Monday</strong> and <strong>Wednesday</strong> evenings at <strong>9:00 PM</strong>. Come prepared to work hard, have fun, and be part of our growing community!</p>
 			<p>During the fall semester, our season kicks off, and you can expect to travel to different universities and pools to compete against other competitive teams. Some of the frequent places we go include <strong>Notre Dame</strong>, <strong>Washington University</strong>, and the <strong>University of Illinois in Urbana-Champaign</strong>.</p>
 			<p>In the spring semester, we will participate in <strong>2-4 tournaments</strong>, and everyone is welcome to join!</p>
-			<p>For the most up to date event schedule, click the following link: <a href="#">Full Event Schedule</a>.</p>
+			<p>For the most up to date event schedule, click the following link: <a href="events.php">Full Event Schedule</a>.</p>
 
         </div>
 			    <div class="text-container" style="width: 5%;"></div>
@@ -191,41 +217,8 @@ button:hover,
 </script>
 
 <!-- Include the Google Maps API with your API key -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBfqmDcBeywXjukaO0sxml7B-RcTSnpqwI&callback=initMap" async defer></script>
-	
-<?php
-/*
-$servername = "localhost";
-$username = "root";
-$password = "";
-$databaseName = "water_polo";
-
-// Create Connection
-$conn = new mysqli($servername, $username, $password, $databaseName);
-
-// Check Connection
-if ($conn->connect_error) {
-	die("Connection failed: " . $conn->connect_error);
-}
-echo "Connected successfully";
-
-$sql = "SELECT * FROM roster";
-$result = $conn->query($sql);
-
-if ($result->num_rows > 0)
-{
-	echo "<table>";
-	while($row = $result->fetch_assoc())
-	{
-		echo "<tr><td>".$row["first_name"]."</td></tr>";
-	}
-	echo "</table>";
-}
-*/
-?>	
-<?php include 'footer.html'; ?>
-<script src="../js/external-js.js"></script>
-<script> 
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBfqmDcBeywXjukaO0sxml7B-RcTSnpqwI&callback=initMap" async defer></script>
+<script>
 document.addEventListener('DOMContentLoaded', function () {
     const currentPath = window.location.pathname.split("/").pop();
     const navLinks = document.querySelectorAll('.o-nav-main__link');
@@ -235,33 +228,38 @@ document.addEventListener('DOMContentLoaded', function () {
             link.classList.add('active');
         }
     });
-});
 
+    let currentIndex = 0; // Index of the current image
+    const slides = document.querySelectorAll('.gallery-item');
 
-let currentIndex = 0; // Index of the current image
-const slides = document.querySelectorAll('.gallery-item');
-
-function showSlide(index) {
-    slides.forEach((slide, i) => {
-        slide.classList.remove('active'); // Hide all slides
-        if (i === index) {
-            slide.classList.add('active'); // Show the current slide
-        }
-    });
-}
-
-function changeSlide(direction) {
-    currentIndex += direction;
-    if (currentIndex < 0) {
-        currentIndex = slides.length - 1; // Go to last slide if at first
-    } else if (currentIndex >= slides.length) {
-        currentIndex = 0; // Go to first slide if at last
+    function showSlide(index) {
+        slides.forEach((slide, i) => {
+            slide.classList.remove('active'); // Hide all slides
+            if (i === index) {
+                slide.classList.add('active'); // Show the current slide
+            }
+        });
     }
-    showSlide(currentIndex); // Show the new slide
-}
 
-// Initialize the first slide
-showSlide(currentIndex);
+    function changeSlide(direction) {
+        currentIndex += direction;
+        if (currentIndex < 0) {
+            currentIndex = slides.length - 1; // Go to last slide if at first
+        } else if (currentIndex >= slides.length) {
+            currentIndex = 0; // Go to first slide if at last
+        }
+        showSlide(currentIndex); // Show the new slide
+    }
+
+    // Initialize the first slide
+    showSlide(currentIndex);
+
+    // Auto change slide every 5 seconds
+    setInterval(() => {
+        changeSlide(1); // Move to the next slide
+    }, 5000); // 5000 ms = 5 seconds
+});
 </script>
+<?php include 'footer.html'; ?>
 </body>
 </html>
