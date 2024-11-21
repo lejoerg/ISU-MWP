@@ -69,7 +69,7 @@ if (isset($_POST['active_year'])) {
 }
 
 // Fetch roster data based on selected active year
-$stmt = $conn->prepare("SELECT * FROM roster WHERE active_year = ?");
+$stmt = $conn->prepare("SELECT * FROM roster WHERE active_year = ? AND active = 1");
 $stmt->bind_param("i", $selectedYear);
 $stmt->execute();
 $rosterResult = $stmt->get_result();
