@@ -67,7 +67,6 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 		}
 		
 		.icon-container {
-			padding: 30px;
 			text-align: center;
 			margin-top: auto;
 		}
@@ -122,52 +121,56 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
         <div class="admin-controls-container">
             <!-- Container 1 -->
             <div class="admin-control-box">
+                <h2>News</h2>
+                <p style="padding-bottom: 40px;"><i>Manage news / announcements.</i></p>
+                <a href="news.php" class="spaced-link">Go to Announcements</a><br>
+				<a href="admin/add-news.php" class="spaced-link">Add Announcement</a><br>
+				<a href="admin/edit-news.php" class="spaced-link">Edit Announcement</a><br>
+				<a href="admin/disable-news.php" class="spaced-link">Disable Announcement</a><br>
+				<a href="" class="spaced-link"> </a><br>
+			<div class="icon-container">
+                <img class="icon-style" src="../img/news.png"></img>
+            </div>
+			</div>
+            <!-- Container 2 -->
+            <div class="admin-control-box">
                 <h2>Events</h2>
                 <p style="padding-bottom: 40px;"><i>Manage events for the team.</i></p>
 					<a href="events.php" class="spaced-link">Go to Events</a><br>
 					<a href="admin/add-events.php" class="spaced-link">Add Event</a><br>
-					<a href="admin/delete-events.php" class="spaced-link">Delete Event</a><br>
+					<a href="admin/edit-events.php" class="spaced-link">Edit Event</a><br>
+					<a href="admin/disable-events.php" class="spaced-link">Delete Event</a><br>
 					<a href="" class="spaced-link"></a><br>
             <div class="icon-container">
                 <img class="icon-style" src="../img/calendar3.png"></img>
             </div>
             </div>
-            <!-- Container 2 -->
+            <!-- Container 3 -->
             <div class="admin-control-box">
                 <h2>Roster</h2>
                 <p style="padding-bottom: 40px;"><i>Update and manage team roster.</i></p>
                 <a href="roster.php" class="spaced-link">Go to Roster</a><br>
 				<a href="admin/add-to-roster.php" class="spaced-link">Add to Roster</a><br>
-				<a href="admin/delete-from-roster.php" class="spaced-link">Delete from Roster</a><br>
+				<a href="admin/edit-roster.php" class="spaced-link">Edit Roster</a><br>
+				<a href="admin/disable-from-roster.php" class="spaced-link">Delete from Roster</a><br>
 				<a href="" class="spaced-link"></a><br>
 			<div class="icon-container">
                 <img class="icon-style" src="../img/group.png"></img>
             </div>
             </div>
-            <!-- Container 3 -->
+            <!-- Container 4 -->
             <div class="admin-control-box">
                 <h2>Merch</h2>
                 <p style="padding-bottom: 40px;"><i>Manage merchandise listings.</i></p>
                 <a href="merchandise.php" class="spaced-link">Go to Merch</a><br>
 				<a href="admin/add-merch.php" class="spaced-link">Add Merch</a><br>
-				<a href="admin/delete-merch.php" class="spaced-link">Delete Merch</a><br>
+				<a href="admin/edit-merch.php" class="spaced-link">Edit Merch</a><br>
+				<a href="admin/disable-merch.php" class="spaced-link">Delete Merch</a><br>
 				<a href="" class="spaced-link"></a><br>
 			<div class="icon-container">
                 <img class="icon-style" src="../img/grocery-store.png"></img>
             </div>
             </div>
-            <!-- Container 4 -->
-            <div class="admin-control-box">
-                <h2>Admin Users</h2>
-                <p style="padding-bottom: 40px;"><i>Manage administrator users.</i></p>
-                <a href="admin/users.php" class="spaced-link">View Admin Users</a><br>
-				<a href="admin/add-users.php" class="spaced-link">Add Admin Users</a><br>
-				<a href="admin/delete-users.php" class="spaced-link">Delete Admin Users</a><br>
-				<a href="" class="spaced-link"> </a><br>
-			<div class="icon-container">
-                <img class="icon-style" src="../img/group.png"></img>
-            </div>
-			</div>
         </div>
     </div>
 <script>
