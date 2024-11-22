@@ -17,7 +17,7 @@ if ($conn->connect_error) {
 }
 
 // Query to get merchandise products, including the price
-$sql = "SELECT title, description, img_location, price FROM merchandise";
+$sql = "SELECT title, description, img_location, price FROM merchandise WHERE active = 1";
 $result = $conn->query($sql);
 ?>
 
