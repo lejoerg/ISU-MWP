@@ -19,8 +19,8 @@ $currentDate = date("Y-m-d");
 $showPast = isset($_GET['show_past']) && $_GET['show_past'] === 'true';
 
 $sql = $showPast
-    ? "SELECT title, location, time, date, description FROM events ORDER BY date ASC, time ASC"
-    : "SELECT title, location, time, date, description FROM events WHERE date >= '$currentDate' ORDER BY date ASC, time ASC";
+    ? "SELECT title, location, time, date, description FROM events WHERE active = 1 ORDER BY date ASC, time ASC"
+    : "SELECT title, location, time, date, description FROM events WHERE active = 1 AND date >= '$currentDate' ORDER BY date ASC, time ASC";
 
 $result = $conn->query($sql);
 
