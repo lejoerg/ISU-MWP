@@ -11,7 +11,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delete Event</title>
+    <title>Manage Events</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link id="main_css" href="../../styles/style41.css" rel="stylesheet">
     <link href="../../styles/easy-responsive-tabs.css" rel="stylesheet">
@@ -43,8 +43,18 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
             background-color: #CC0000;
             color: white;
         }
-        .delete-btn {
+        .toggle-btn {
             background-color: #CC0000;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+        }
+        .re-enable-btn {
+            background-color: #28a745; 
             color: white;
             border: none;
             padding: 6px 12px;
@@ -57,7 +67,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 </head>
 <body style="background-color: #EEEEEE;">
     <div class="content-container">
-        <h2 style="text-align: center;">Manage Events</h2>
+        <h2 style="text-align: center;">Manage Active Events</h2>
         <?php
         $servername = "localhost";
         $username = "root";
@@ -76,11 +86,18 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
             $event_id = $_POST['event_id'];
 
-            $stmt = $conn->prepare("DELETE FROM events WHERE event_id = ?");
+            if ($_POST['submit'] === 'Disable') {
+                // Update the event status to inactive
+                $stmt = $conn->prepare("UPDATE events SET active = 0 WHERE event_id = ?");
+            } elseif ($_POST['submit'] === 'Re-enable') {
+                // Update the event status to active
+                $stmt = $conn->prepare("UPDATE events SET active = 1 WHERE event_id = ?");
+            }
+            
             $stmt->bind_param("i", $event_id);
 
             if ($stmt->execute()) {
-                echo '<div style="text-align: center; margin: 20px;">Event deleted successfully.</div>';
+                echo '<div style="text-align: center; margin: 20px;">Event status updated successfully.</div>';
             } else {
                 echo '<div style="text-align: center; color: red; margin: 20px;">Error: ' . $stmt->error . '</div>';
             }
@@ -89,10 +106,10 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
         }
 
         // Fetch events
-        $sql = "SELECT * FROM events ORDER BY date ASC, time ASC";
-        $result = $conn->query($sql);
+        $sql_active = "SELECT * FROM events WHERE active = 1 ORDER BY date ASC, time ASC";
+        $result_active = $conn->query($sql_active);
 
-        if ($result->num_rows > 0) {
+        if ($result_active->num_rows > 0) {
             echo '<table>';
             echo '<tr>
                     <th>Event ID</th>
@@ -104,7 +121,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                     <th>Actions</th>
                   </tr>';
 
-            while ($row = $result->fetch_assoc()) {
+            while ($row = $result_active->fetch_assoc()) {
                 $formattedTime = date("g:i A", strtotime($row['time']));
                 $formattedDate = date("F j, Y", strtotime($row['date']));
 
@@ -116,9 +133,9 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                 echo '<td>' . $formattedDate . '</td>';
                 echo '<td>' . $row['description'] . '</td>';
                 echo '<td>
-                        <form method="post" action="" onsubmit="confirmDeletion(event)">
+                        <form method="post" action="">
                             <input type="hidden" name="event_id" value="' . $row['event_id'] . '">
-                            <button type="submit" name="submit" class="delete-btn">Delete</button>
+                            <button type="submit" name="submit" value="Disable" class="toggle-btn">Disable</button>
                         </form>
                       </td>';
                 echo '</tr>';
@@ -127,6 +144,45 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
             echo '</table>';
         } else {
             echo "<p style='text-align: center;'>No events found.</p>";
+        }
+
+        // Fetch disabled events
+        echo '<h2 style="text-align: center; margin-top: 40px;">Manage Disabled Events</h2>';
+        $sql_disabled = "SELECT * FROM events WHERE active = 0 ORDER BY date ASC, time ASC";
+        $result_disabled = $conn->query($sql_disabled);
+
+        if ($result_disabled->num_rows > 0) {
+            echo '<table>';
+            echo '<tr>
+                    <th>Event ID</th>
+                    <th>Title</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Location</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                  </tr>';
+
+            while ($row = $result_disabled->fetch_assoc()) {
+                echo '<tr>';
+                echo '<td>' . $row['event_id'] . '</td>';
+                echo '<td>' . $row['title'] . '</td>';
+                echo '<td>' . $row['date'] . '</td>';
+                echo '<td>' . $row['time'] . '</td>';
+                echo '<td>' . $row['location'] . '</td>';
+                echo '<td>' . $row['description'] . '</td>';
+                echo '<td>
+                        <form method="post" action="">
+                            <input type="hidden" name="event_id" value="' . $row['event_id'] . '">
+                            <button type="submit" name="submit" value="Re-enable" class="toggle-btn re-enable-btn">Enable</button>
+                        </form>
+                      </td>';
+                echo '</tr>';
+            }
+
+            echo '</table>';
+        } else {
+            echo "<p style='text-align: center;'>No disabled events found.</p>";
         }
 
         $conn->close();
