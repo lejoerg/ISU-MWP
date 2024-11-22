@@ -11,7 +11,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delete Merchandise</title>
+    <title>Manage Merchandise</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link id="main_css" href="../../styles/style41.css" rel="stylesheet">
     <link href="../../styles/easy-responsive-tabs.css" rel="stylesheet">
@@ -43,8 +43,18 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
             background-color: #CC0000;
             color: white;
         }
-        .delete-btn {
+        .toggle-btn {
             background-color: #CC0000;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+        }
+        .re-enable-btn {
+            background-color: #28a745; 
             color: white;
             border: none;
             padding: 6px 12px;
@@ -72,15 +82,19 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
             die("Connection failed: " . $conn->connect_error);
         }
 
-        // Check for delete submission
+        // Check for toggle submission (disable/enable)
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
             $merch_id = $_POST['merch_id'];
+            $current_status = $_POST['current_status'];
 
-            $stmt = $conn->prepare("DELETE FROM merchandise WHERE merch_id = ?");
-            $stmt->bind_param("i", $merch_id);
+            // Toggle the active status
+            $new_status = ($current_status == 1) ? 0 : 1;
+
+            $stmt = $conn->prepare("UPDATE merchandise SET active = ? WHERE merch_id = ?");
+            $stmt->bind_param("ii", $new_status, $merch_id);
 
             if ($stmt->execute()) {
-                echo '<div style="text-align: center; margin: 20px;">Merchandise deleted successfully.</div>';
+                echo '<div style="text-align: center; margin: 20px;">Status updated successfully.</div>';
             } else {
                 echo '<div style="text-align: center; color: red; margin: 20px;">Error: ' . $stmt->error . '</div>';
             }
@@ -88,11 +102,12 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
             $stmt->close();
         }
 
-        // Fetch merchandise
-        $sql = "SELECT * FROM merchandise ORDER BY title ASC";
+        // Fetch active merchandise
+        $sql = "SELECT * FROM merchandise WHERE active = 1 ORDER BY title ASC";
         $result = $conn->query($sql);
 
         if ($result->num_rows > 0) {
+            echo '<h2 style="text-align: center;">Active Merchandise</h2>';
             echo '<table>';
             echo '<tr>
                     <th>Merchandise ID</th>
@@ -109,9 +124,10 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                 echo '<td>$' . number_format($row['price'], 2) . '</td>';
                 echo '<td>' . $row['description'] . '</td>';
                 echo '<td>
-                        <form method="post" action="" onsubmit="confirmDeletion(event)">
+                        <form method="post" action="">
                             <input type="hidden" name="merch_id" value="' . $row['merch_id'] . '">
-                            <button type="submit" name="submit" class="delete-btn">Delete</button>
+                            <input type="hidden" name="current_status" value="1">
+                            <button type="submit" name="toggle" class="toggle-btn">Disable</button>
                         </form>
                       </td>';
                 echo '</tr>';
@@ -120,6 +136,42 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
             echo '</table>';
         } else {
             echo "<p style='text-align: center;'>No merchandise found.</p>";
+        }
+
+        // Fetch disabled merchandise
+        $sql_disabled = "SELECT * FROM merchandise WHERE active = 0 ORDER BY title ASC";
+        $result_disabled = $conn->query($sql_disabled);
+
+        if ($result_disabled->num_rows > 0) {
+            echo '<h2 style="text-align: center; margin-top: 40px;">Disabled Merchandise</h2>';
+            echo '<table>';
+            echo '<tr>
+                    <th>Merchandise ID</th>
+                    <th>Title</th>
+                    <th>Price</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                  </tr>';
+
+            while ($row = $result_disabled->fetch_assoc()) {
+                echo '<tr>';
+                echo '<td>' . $row['merch_id'] . '</td>';
+                echo '<td>' . $row['title'] . '</td>';
+                echo '<td>$' . number_format($row['price'], 2) . '</td>';
+                echo '<td>' . $row['description'] . '</td>';
+                echo '<td>
+                        <form method="post" action="">
+                            <input type="hidden" name="merch_id" value="' . $row['merch_id'] . '">
+                            <input type="hidden" name="current_status" value="0">
+                            <button type="submit" name="toggle" class="toggle-btn re-enable-btn">Enable</button>
+                        </form>
+                      </td>';
+                echo '</tr>';
+            }
+
+            echo '</table>';
+        } else {
+            echo "<p style='text-align: center;'>No disabled merchandise found.</p>";
         }
 
         $conn->close();
