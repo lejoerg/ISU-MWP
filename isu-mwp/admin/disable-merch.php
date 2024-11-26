@@ -1,10 +1,62 @@
 <?php
 session_start();
+
 // Check if the user is logged in as an admin
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     header('Location: ../signin.php');
     exit;
 }
+
+// Database connection details
+$servername = "localhost";
+$username = "root";
+$password = "";
+$databaseName = "water_polo";
+
+// Establish database connection
+$conn = new mysqli($servername, $username, $password, $databaseName);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Function to update merchandise status
+function updateMerchStatus($conn, $merch_id, $new_status) {
+    $stmt = $conn->prepare("UPDATE merchandise SET active = ? WHERE merch_id = ?");
+    $stmt->bind_param("ii", $new_status, $merch_id);
+    $result = $stmt->execute();
+    $stmt->close();
+    return $result;
+}
+
+// Handle form submissions
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle'])) {
+    $merch_id = $_POST['merch_id'];
+    $current_status = $_POST['current_status'];
+    $new_status = ($current_status == 1) ? 0 : 1;
+
+    if (updateMerchStatus($conn, $merch_id, $new_status)) {
+        $message = "Status updated successfully.";
+    } else {
+        $message = "Error updating status.";
+    }
+}
+
+// Function to fetch merchandise by status
+function fetchMerchByStatus($conn, $status) {
+    $stmt = $conn->prepare("SELECT * FROM merchandise WHERE active = ? ORDER BY title ASC");
+    $stmt->bind_param("i", $status);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $data = $result->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+    return $data;
+}
+
+// Fetch active and disabled merchandise
+$activeMerch = fetchMerchByStatus($conn, 1);
+$disabledMerch = fetchMerchByStatus($conn, 0);
+
+$conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -14,8 +66,6 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     <title>Manage Merchandise</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link id="main_css" href="../../styles/style41.css" rel="stylesheet">
-    <link href="../../styles/easy-responsive-tabs.css" rel="stylesheet">
-    <link href="../../styles/additional-styles.css" rel="stylesheet">
     <?php include 'admin-bar.html'; ?>
     <style>
         .content-container {
@@ -50,8 +100,6 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
             padding: 6px 12px;
             border-radius: 4px;
             cursor: pointer;
-            display: block;
-            margin: 0 auto;
         }
         .re-enable-btn {
             background-color: #28a745; 
@@ -60,122 +108,75 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
             padding: 6px 12px;
             border-radius: 4px;
             cursor: pointer;
-            display: block;
-            margin: 0 auto;
         }
     </style>
 </head>
 <body style="background-color: #EEEEEE;">
     <div class="content-container">
         <h2 style="text-align: center;">Manage Merchandise</h2>
-        <?php
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $databaseName = "water_polo";
+        <?php if (isset($message)): ?>
+            <div style="text-align: center; margin: 20px;"><?php echo $message; ?></div>
+        <?php endif; ?>
 
-        // Create connection
-        $conn = new mysqli($servername, $username, $password, $databaseName);
-
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        }
-
-        // Check for toggle submission (disable/enable)
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
-            $merch_id = $_POST['merch_id'];
-            $current_status = $_POST['current_status'];
-
-            // Toggle the active status
-            $new_status = ($current_status == 1) ? 0 : 1;
-
-            $stmt = $conn->prepare("UPDATE merchandise SET active = ? WHERE merch_id = ?");
-            $stmt->bind_param("ii", $new_status, $merch_id);
-
-            if ($stmt->execute()) {
-                echo '<div style="text-align: center; margin: 20px;">Status updated successfully.</div>';
-            } else {
-                echo '<div style="text-align: center; color: red; margin: 20px;">Error: ' . $stmt->error . '</div>';
-            }
-
-            $stmt->close();
-        }
-
-        // Fetch active merchandise
-        $sql = "SELECT * FROM merchandise WHERE active = 1 ORDER BY title ASC";
-        $result = $conn->query($sql);
-
-        if ($result->num_rows > 0) {
-            echo '<h2 style="text-align: center;">Active Merchandise</h2>';
-            echo '<table>';
-            echo '<tr>
+        <h3 style="text-align: center;">Active Merchandise</h3>
+        <?php if (count($activeMerch) > 0): ?>
+            <table>
+                <tr>
                     <th>Merchandise ID</th>
                     <th>Title</th>
                     <th>Price</th>
                     <th>Description</th>
                     <th>Actions</th>
-                  </tr>';
+                </tr>
+                <?php foreach ($activeMerch as $merch): ?>
+                    <tr>
+                        <td><?php echo $merch['merch_id']; ?></td>
+                        <td><?php echo $merch['title']; ?></td>
+                        <td>$<?php echo number_format($merch['price'], 2); ?></td>
+                        <td><?php echo $merch['description']; ?></td>
+                        <td>
+                            <form method="post" action="">
+                                <input type="hidden" name="merch_id" value="<?php echo $merch['merch_id']; ?>">
+                                <input type="hidden" name="current_status" value="1">
+                                <button type="submit" name="toggle" class="toggle-btn">Disable</button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </table>
+        <?php else: ?>
+            <p style="text-align: center;">No active merchandise found.</p>
+        <?php endif; ?>
 
-            while ($row = $result->fetch_assoc()) {
-                echo '<tr>';
-                echo '<td>' . $row['merch_id'] . '</td>';
-                echo '<td>' . $row['title'] . '</td>';
-                echo '<td>$' . number_format($row['price'], 2) . '</td>';
-                echo '<td>' . $row['description'] . '</td>';
-                echo '<td>
-                        <form method="post" action="">
-                            <input type="hidden" name="merch_id" value="' . $row['merch_id'] . '">
-                            <input type="hidden" name="current_status" value="1">
-                            <button type="submit" name="toggle" class="toggle-btn">Disable</button>
-                        </form>
-                      </td>';
-                echo '</tr>';
-            }
-
-            echo '</table>';
-        } else {
-            echo "<p style='text-align: center;'>No merchandise found.</p>";
-        }
-
-        // Fetch disabled merchandise
-        $sql_disabled = "SELECT * FROM merchandise WHERE active = 0 ORDER BY title ASC";
-        $result_disabled = $conn->query($sql_disabled);
-
-        if ($result_disabled->num_rows > 0) {
-            echo '<h2 style="text-align: center; margin-top: 40px;">Disabled Merchandise</h2>';
-            echo '<table>';
-            echo '<tr>
+        <h3 style="text-align: center; margin-top: 40px;">Disabled Merchandise</h3>
+        <?php if (count($disabledMerch) > 0): ?>
+            <table>
+                <tr>
                     <th>Merchandise ID</th>
                     <th>Title</th>
                     <th>Price</th>
                     <th>Description</th>
                     <th>Actions</th>
-                  </tr>';
-
-            while ($row = $result_disabled->fetch_assoc()) {
-                echo '<tr>';
-                echo '<td>' . $row['merch_id'] . '</td>';
-                echo '<td>' . $row['title'] . '</td>';
-                echo '<td>$' . number_format($row['price'], 2) . '</td>';
-                echo '<td>' . $row['description'] . '</td>';
-                echo '<td>
-                        <form method="post" action="">
-                            <input type="hidden" name="merch_id" value="' . $row['merch_id'] . '">
-                            <input type="hidden" name="current_status" value="0">
-                            <button type="submit" name="toggle" class="toggle-btn re-enable-btn">Enable</button>
-                        </form>
-                      </td>';
-                echo '</tr>';
-            }
-
-            echo '</table>';
-        } else {
-            echo "<p style='text-align: center;'>No disabled merchandise found.</p>";
-        }
-
-        $conn->close();
-        ?>
+                </tr>
+                <?php foreach ($disabledMerch as $merch): ?>
+                    <tr>
+                        <td><?php echo $merch['merch_id']; ?></td>
+                        <td><?php echo $merch['title']; ?></td>
+                        <td>$<?php echo number_format($merch['price'], 2); ?></td>
+                        <td><?php echo $merch['description']; ?></td>
+                        <td>
+                            <form method="post" action="">
+                                <input type="hidden" name="merch_id" value="<?php echo $merch['merch_id']; ?>">
+                                <input type="hidden" name="current_status" value="0">
+                                <button type="submit" name="toggle" class="re-enable-btn">Enable</button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </table>
+        <?php else: ?>
+            <p style="text-align: center;">No disabled merchandise found.</p>
+        <?php endif; ?>
     </div>
 </body>
 </html>
