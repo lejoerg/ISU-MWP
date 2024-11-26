@@ -139,7 +139,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 					<a href="events.php" class="spaced-link">Go to Events</a><br>
 					<a href="admin/add-events.php" class="spaced-link">Add Event</a><br>
 					<a href="admin/edit-events.php" class="spaced-link">Edit Event</a><br>
-					<a href="admin/disable-events.php" class="spaced-link">Delete Event</a><br>
+					<a href="admin/disable-events.php" class="spaced-link">Disable Event</a><br>
 					<a href="" class="spaced-link"></a><br>
             <div class="icon-container">
                 <img class="icon-style" src="../img/calendar3.png"></img>
@@ -152,7 +152,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                 <a href="roster.php" class="spaced-link">Go to Roster</a><br>
 				<a href="admin/add-to-roster.php" class="spaced-link">Add to Roster</a><br>
 				<a href="admin/edit-roster.php" class="spaced-link">Edit Roster</a><br>
-				<a href="admin/disable-from-roster.php" class="spaced-link">Delete from Roster</a><br>
+				<a href="admin/disable-from-roster.php" class="spaced-link">Disable from Roster</a><br>
 				<a href="" class="spaced-link"></a><br>
 			<div class="icon-container">
                 <img class="icon-style" src="../img/group.png"></img>
@@ -165,7 +165,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
                 <a href="merchandise.php" class="spaced-link">Go to Merch</a><br>
 				<a href="admin/add-merch.php" class="spaced-link">Add Merch</a><br>
 				<a href="admin/edit-merch.php" class="spaced-link">Edit Merch</a><br>
-				<a href="admin/disable-merch.php" class="spaced-link">Delete Merch</a><br>
+				<a href="admin/disable-merch.php" class="spaced-link">Disable Merch</a><br>
 				<a href="" class="spaced-link"></a><br>
 			<div class="icon-container">
                 <img class="icon-style" src="../img/grocery-store.png"></img>
