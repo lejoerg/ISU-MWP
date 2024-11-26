@@ -53,11 +53,21 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
             display: block;
             margin: 0 auto;
         }
+        .re-enable-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+        }
     </style>
 </head>
 <body style="background-color: #EEEEEE;">
     <div class="content-container">
-        <h2 style="text-align: center;">Manage News</h2>
+        <h2 style="text-align: center;">Manage Active News</h2>
         <?php
         $servername = "localhost";
         $username = "root";
@@ -72,19 +82,20 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
             die("Connection failed: " . $conn->connect_error);
         }
 
-        // Check for toggle submission (enable/disable)
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle'])) {
+        // Check for toggle submission
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
             $news_id = $_POST['news_id'];
-            $current_status = $_POST['current_status'];
 
-            // Toggle the active status
-            $new_status = ($current_status == 1) ? 0 : 1;
+            if ($_POST['submit'] === 'Disable') {
+                $stmt = $conn->prepare("UPDATE news SET active = 0 WHERE news_id = ?");
+            } elseif ($_POST['submit'] === 'Enable') {
+                $stmt = $conn->prepare("UPDATE news SET active = 1 WHERE news_id = ?");
+            }
 
-            $stmt = $conn->prepare("UPDATE news SET active = ? WHERE news_id = ?");
-            $stmt->bind_param("ii", $new_status, $news_id);
+            $stmt->bind_param("i", $news_id);
 
             if ($stmt->execute()) {
-                echo '<div style="text-align: center; margin: 20px;">Status updated successfully.</div>';
+                echo '<div style="text-align: center; margin: 20px;">News status updated successfully.</div>';
             } else {
                 echo '<div style="text-align: center; color: red; margin: 20px;">Error: ' . $stmt->error . '</div>';
             }
@@ -92,33 +103,32 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
             $stmt->close();
         }
 
-        // Fetch news entries
-        $sql = "SELECT * FROM news ORDER BY date_published DESC";
-        $result = $conn->query($sql);
+        // Fetch active news
+        $sql_active = "SELECT * FROM news WHERE active = 1 ORDER BY date_published DESC";
+        $result_active = $conn->query($sql_active);
 
-        if ($result->num_rows > 0) {
+        if ($result_active->num_rows > 0) {
             echo '<table>';
             echo '<tr>
+                    <th>News ID</th>
                     <th>Title</th>
                     <th>Date Published</th>
                     <th>Message</th>
                     <th>Actions</th>
                   </tr>';
 
-            while ($row = $result->fetch_assoc()) {
+            while ($row = $result_active->fetch_assoc()) {
                 $formattedDate = date("F j, Y", strtotime($row['date_published']));
-                $statusButtonText = ($row['active'] == 1) ? 'Disable' : 'Enable';
-                $currentStatus = $row['active'];
 
                 echo '<tr>';
+                echo '<td>' . $row['news_id'] . '</td>';
                 echo '<td>' . $row['title'] . '</td>';
                 echo '<td>' . $formattedDate . '</td>';
                 echo '<td>' . $row['message'] . '</td>';
                 echo '<td>
                         <form method="post" action="">
                             <input type="hidden" name="news_id" value="' . $row['news_id'] . '">
-                            <input type="hidden" name="current_status" value="' . $currentStatus . '">
-                            <button type="submit" name="toggle" class="toggle-btn">' . $statusButtonText . '</button>
+                            <button type="submit" name="submit" value="Disable" class="toggle-btn">Disable</button>
                         </form>
                       </td>';
                 echo '</tr>';
@@ -126,7 +136,42 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 
             echo '</table>';
         } else {
-            echo "<p style='text-align: center;'>No news entries found.</p>";
+            echo "<p style='text-align: center;'>No active news found.</p>";
+        }
+
+        // Fetch disabled news
+        echo '<h2 style="text-align: center; margin-top: 40px;">Manage Disabled News</h2>';
+        $sql_disabled = "SELECT * FROM news WHERE active = 0 ORDER BY date_published DESC";
+        $result_disabled = $conn->query($sql_disabled);
+
+        if ($result_disabled->num_rows > 0) {
+            echo '<table>';
+            echo '<tr>
+                    <th>News ID</th>
+                    <th>Title</th>
+                    <th>Date Published</th>
+                    <th>Message</th>
+                    <th>Actions</th>
+                  </tr>';
+
+            while ($row = $result_disabled->fetch_assoc()) {
+                echo '<tr>';
+                echo '<td>' . $row['news_id'] . '</td>';
+                echo '<td>' . $row['title'] . '</td>';
+                echo '<td>' . $row['date_published'] . '</td>';
+                echo '<td>' . $row['message'] . '</td>';
+                echo '<td>
+                        <form method="post" action="">
+                            <input type="hidden" name="news_id" value="' . $row['news_id'] . '">
+                            <button type="submit" name="submit" value="Enable" class="re-enable-btn">Enable</button>
+                        </form>
+                      </td>';
+                echo '</tr>';
+            }
+
+            echo '</table>';
+        } else {
+            echo "<p style='text-align: center;'>No disabled news found.</p>";
         }
 
         $conn->close();
