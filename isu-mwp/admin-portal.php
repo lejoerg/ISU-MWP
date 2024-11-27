@@ -2,11 +2,43 @@
 session_start();
 
 // Check if the user is logged in
-if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true || !isset($_SESSION['id'])) {
     // Redirect to login page if not authenticated
     header("Location: signin.php");
     exit;
 }
+
+// Database connection
+$mysqli = new mysqli('localhost', 'root', '', 'water_polo');
+
+// Check database connection
+if ($mysqli->connect_error) {
+    die("Connection failed: " . $mysqli->connect_error);
+}
+
+// Fetch the user's `super_admin` value from the database
+$user_id = $_SESSION['id'];
+$stmt = $mysqli->prepare("SELECT super_admin FROM users WHERE id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$stmt->bind_result($super_admin);
+$stmt->fetch();
+$stmt->close();
+
+// Redirect if the user is not a regular admin
+if (!isset($super_admin) || $super_admin != 0) {
+    // Redirect to super-portal if the user is not a regular admin
+    header("Location: super-portal.php");
+    exit;
+}
+
+// Close the database connection
+$mysqli->close();
+
+// Debugging: Show session variables
+//echo '<pre>';
+//print_r($_SESSION);
+//echo '</pre>';
 ?>
 
 <!DOCTYPE html>
@@ -115,7 +147,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     <!-- Admin Portal Content -->
     <div class="container">
 		<div class="header-container">
-			<h1 style="padding-top: 10px; padding-left: 30px;">Welcome to the Admin Portal</h1>
+			<h1 style="padding-top: 10px; padding-left: 30px;">Admin Portal</h1>
             <a href="logout.php" class="logout-button">Logout</a>
         </div>
         <div class="admin-controls-container">
