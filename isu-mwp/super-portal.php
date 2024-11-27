@@ -1,6 +1,11 @@
 <?php
 session_start();
 
+//For debugging purposes, leave commented out.
+//echo '<pre>';
+//print_r($_SESSION);
+//echo '</pre>';
+
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -14,7 +19,14 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     exit;
 }
 
-
+// Check if the user is a super admin
+if (isset($_SESSION['super_admin']) && $_SESSION['super_admin'] == 1) {
+    // User is a super admin, proceed to the page content
+} else {
+    // If not a super admin, redirect to an error page or a restricted access page
+    header("Location: not-found.php");
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -168,7 +180,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     <!-- Super Admin Portal Content -->
     <div class="container">
         <div class="header-container">
-            <h1 style="padding-top: 10px; padding-left: 30px;">Welcome to the Super Admin Portal</h1>
+            <h1 style="padding-top: 10px; padding-left: 30px;">Super Admin Portal</h1>
             <a href="logout.php" class="logout-button">Logout</a>
         </div>
 		<div class="superadmin-controls">
