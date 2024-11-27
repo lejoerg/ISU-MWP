@@ -7,7 +7,7 @@
     <link id="main_css" href="../../styles/style41.css" rel="stylesheet">
     <link href="../../styles/easy-responsive-tabs.css" rel="stylesheet">
     <link href="../../styles/additional-styles.css" rel="stylesheet">
-    <?php include 'admin-bar.html'; ?>
+    <?php include 'admin-bar.php'; ?>
 </head>
 <style>
 		table {

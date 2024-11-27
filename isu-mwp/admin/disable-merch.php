@@ -66,7 +66,7 @@ $conn->close();
     <title>Manage Merchandise</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link id="main_css" href="../../styles/style41.css" rel="stylesheet">
-    <?php include 'admin-bar.html'; ?>
+    <?php include 'admin-bar.php'; ?>
     <style>
         .content-container {
             width: 80%;
