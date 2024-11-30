@@ -1,9 +1,10 @@
 <?php
 session_start();
 
-// Check if the user is logged in as an admin
-if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header('Location: ../signin.php');
+// Check if the user is logged in and a super admin
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true || $_SESSION['super_admin'] != 1) {
+    // Redirect to a restricted access page if not a super admin
+    header("Location: not-found.php");
     exit;
 }
 
