@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $firebaseProjectId = "it-363"; // Update this to match your project ID
 
         // Verify the ID Token with Firebase
-        $url = "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyBZHa58oAwnVNRHZx-BLbV5SCxESJb5xqU";
+        $url = "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=INSERT_YOUR_API_KEY_HERE";
         
         // Set up the request to Firebase to verify the ID Token
         $curl = curl_init();
