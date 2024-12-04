@@ -45,14 +45,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $mail->isSMTP();
                 $mail->Host = 'smtp.gmail.com';
                 $mail->SMTPAuth = true;
-                $mail->Username = 'lukejoerg12@gmail.com';
-                $mail->Password = 'owky yetg naei yeno';
+                $mail->Username = 'INSERT_EMAIL_HERE';
+                $mail->Password = 'INSERT_PRIVATE_PASSWORD_HERE';
                 $mail->SMTPSecure = 'tls';
                 $mail->Port = 587;
 
                 // Recipients
                 $mail->setFrom($email, $name);
-                $mail->addAddress('lukejoerg12@gmail.com', 'ISU MWP'); // Add a recipient
+                $mail->addAddress('INSERT_EMAIL_HERE', 'ISU MWP'); // Add a recipient
 
                 // Email content
                 $mail->isHTML(true);
