@@ -64,7 +64,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true || $_SESSION
 // Check if the form is submitted
 if (isset($_POST['submit'])) {
     // Firebase URL and Admin API Key
-    $firebaseUrl = 'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyBZHa58oAwnVNRHZx-BLbV5SCxESJb5xqU';
+    $firebaseUrl = 'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=INSERT_FIREBASE_API_KEY_HERE';
 
     // Get user details from the form
     $email = $_POST['email'];
