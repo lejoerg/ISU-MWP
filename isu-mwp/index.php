@@ -217,7 +217,7 @@ button:hover,
 </script>
 
 <!-- Include the Google Maps API with your API key -->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBfqmDcBeywXjukaO0sxml7B-RcTSnpqwI&callback=initMap" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=GOOGLE_MAPS_API_KEY_HERE&callback=initMap" async defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const currentPath = window.location.pathname.split("/").pop();
