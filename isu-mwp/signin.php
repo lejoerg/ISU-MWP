@@ -32,11 +32,14 @@
                                 Contact us to request an Admin account.
                             </p>
                         </form>
+                        <!-- Display error message if set -->
+                        <p id="errorMessage" class="text-danger text-center" style="display: none;"></p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, getIdToken } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
@@ -59,7 +62,11 @@
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
 
+        // Reset error message
+        document.getElementById("errorMessage").style.display = "none";
+
         try {
+            // Firebase sign-in attempt
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             console.log(userCredential);
 
@@ -67,13 +74,13 @@
             const idToken = await getIdToken(userCredential.user);
             console.log("ID Token:", idToken);
 
-            // Send the ID token and session data to authenticate.php
+            // Send the ID token to authenticate.php
             const response = await fetch("authenticate.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     loggedin: true,
-                    idToken: idToken // Send ID Token for future Firebase operations
+                    idToken: idToken // Send ID Token for session management
                 })
             });
 
@@ -81,25 +88,35 @@
             console.log(data);
 
             if (data.status === "success") {
-                window.location.href = "admin-portal.php";
+                // Set session information (make sure this is properly handled in authenticate.php)
+                // Check if the user is a super-admin (using the super_admin value from the response)
+                if (data.super_admin === 1) {
+                    window.location.href = "super-portal.php"; // Redirect to super-admin portal
+                } else {
+                    window.location.href = "admin-portal.php"; // Redirect to regular admin portal
+                }
             } else {
-                alert("Failed to set session: " + data.message);
+                // Display error message if login failed
+                document.getElementById("errorMessage").textContent = "Failed to authenticate user: " + data.message;
+                document.getElementById("errorMessage").style.display = "block";
             }
         } catch (error) {
-            alert("We couldn't verify your credentials. Please make sure your username and password are correct, and try again.");
+            // Handle Firebase authentication errors
+            console.error(error);
+            document.getElementById("errorMessage").textContent = "We couldn't verify your credentials. Please make sure your username and password are correct, and try again.";
+            document.getElementById("errorMessage").style.display = "block";
         }
     }
 
     window.signIn = signIn;
-	
-	firebase.auth().currentUser.getIdToken()
+
+    // This code is for debugging purposes (getting Firebase ID token from the current user)
+    firebase.auth().currentUser?.getIdToken()
     .then(function(idToken) {
-        // Send the ID token to your backend
+        // Send the ID token to your backend for further processing
         fetch('authenticate.php', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ idToken: idToken })
         })
         .then(response => response.json())
@@ -111,18 +128,6 @@
         console.log('Error getting ID token:', error);
     });
 
-
-    // Add the 'DOMContentLoaded' event listener
-    document.addEventListener('DOMContentLoaded', function () {
-        const currentPath = window.location.pathname.split("/").pop();
-        const navLinks = document.querySelectorAll('.o-nav-main__link');
-
-        navLinks.forEach(link => {
-            if (link.getAttribute('href') === currentPath) {
-                link.classList.add('active');
-            }
-        });
-    });
 </script>
 </body>
 </html>
