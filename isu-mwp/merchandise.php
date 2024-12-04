@@ -94,6 +94,10 @@ $result = $conn->query($sql);
             justify-content: center;
             align-items: center;
         }
+		.o-nav-main__link.active {
+			background-color: #900; /* Change to desired color */
+			color: white; /* Text color change */
+		}
     </style>
 </head>
 <body>

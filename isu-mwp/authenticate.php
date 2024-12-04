@@ -1,6 +1,19 @@
 <?php
 session_start();
 
+// Database connection
+$servername = "localhost";
+$username = "root";
+$password = "";
+$databaseName = "water_polo";
+
+$conn = new mysqli($servername, $username, $password, $databaseName);
+
+// Check the database connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
 // Check if the request method is POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Get the JSON data from the POST body
@@ -36,13 +49,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($firebaseResponse['users'][0]['email'])) {
             $userEmail = $firebaseResponse['users'][0]['email'];
 
-            // Set session variables
-            $_SESSION['loggedin'] = true;
-            $_SESSION['user_email'] = $userEmail;
-			$_SESSION['firebase_id_token'] = $idToken;
+            // Query the database for additional user details
+            $query = "SELECT id, super_admin, active FROM users WHERE email = ?";
+            $stmt = $conn->prepare($query);
+            $stmt->bind_param("s", $userEmail);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-            // Return a success response
-            echo json_encode(['status' => 'success', 'message' => 'Session set successfully']);
+            if ($result->num_rows === 1) {
+                $user = $result->fetch_assoc();
+
+                // Set session variables
+                $_SESSION['loggedin'] = true;
+                $_SESSION['user_email'] = $userEmail;
+                $_SESSION['firebase_id_token'] = $idToken;
+                $_SESSION['id'] = $user['id'];
+                $_SESSION['super_admin'] = $user['super_admin'];
+                $_SESSION['active'] = $user['active'];
+
+                // Return a success response
+    echo json_encode([
+        'status' => 'success',
+        'super_admin' => $user['super_admin']
+    ]);
+            } else {
+                // Return failure response if user not found
+                echo json_encode(['status' => 'error', 'message' => 'User not found in the database']);
+            }
         } else {
             // Return failure response if token is invalid
             echo json_encode(['status' => 'error', 'message' => 'Invalid ID token']);
@@ -55,4 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Return an error message for non-POST requests
     echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
 }
+
+// Close the database connection
+$conn->close();
 ?>

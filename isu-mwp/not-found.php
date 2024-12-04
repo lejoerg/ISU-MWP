@@ -21,5 +21,5 @@
 }
 </style>
 <div class="center-message">
-    <p>This page couldn't be found, or does not exist yet.</p>
+    <p>This page couldn't be found, does not exist yet, or you are not authorized to access it.</p>
 </div>

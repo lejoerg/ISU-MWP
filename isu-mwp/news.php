@@ -93,7 +93,11 @@ $startDate = isset($_GET['startDate']) ? $_GET['startDate'] : '2024-01-01'; // D
 $endDate = isset($_GET['endDate']) ? $_GET['endDate'] : date('Y-m-d'); // Default to today's date
 
 // Prepare SQL statement
-$sql = "SELECT title, date_published, message FROM news WHERE date_published BETWEEN ? AND ? ORDER BY date_published DESC";
+$sql = "SELECT title, date_published, message 
+        FROM news 
+        WHERE date_published BETWEEN ? AND ? 
+          AND active = 1 
+        ORDER BY date_published DESC";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("ss", $startDate, $endDate);
 $stmt->execute();
