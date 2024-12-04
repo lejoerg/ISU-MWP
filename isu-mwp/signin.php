@@ -45,13 +45,7 @@
     import { getAuth, signInWithEmailAndPassword, getIdToken } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
     const firebaseConfig = {
-        apiKey: "AIzaSyBZHa58oAwnVNRHZx-BLbV5SCxESJb5xqU",
-        authDomain: "it-363.firebaseapp.com",
-        projectId: "it-363",
-        storageBucket: "it-363.firebasestorage.app",
-        messagingSenderId: "783033560797",
-        appId: "1:783033560797:web:8d4e0f091f307ddeafb534",
-        measurementId: "G-HNJJQ5TP0F"
+        INSERT_FIREBASE_CONFIG_HERE
     };
 
     // Initialize Firebase
